@@ -32,6 +32,10 @@ class WeeklyWorkPlan:
         end_date ='2023-03-14'
         ws['B6'] = f'({start_date} ~ {end_date})'
 
+        #셀병합
+        ws.merge_cells('B5:F5')
+        ws.merge_cells('B6:F6')
+
 if __name__ == '__main__':
     wwp = WeeklyWorkPlan('2023-03-08', '김석진')
     wwp.save('주간업무계획표.xlsx')
