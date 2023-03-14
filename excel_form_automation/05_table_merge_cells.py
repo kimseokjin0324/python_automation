@@ -56,17 +56,16 @@ class WeeklyWorkPlan:
 
         # 날짜및 요일 뿌리기
         for i in range(len(self.date_list)):
-            ws.cell(row=9 + i, column=2).value = self.date_list[i]
-            ws.cell(row=9 + i, column=3).value = self.days_of_week[i]
-
-        # 행삽입하기
-        ws.insert_rows(10,4)
-        ws.insert_rows(15,4)
-        ws.insert_rows(20,4)
-        ws.insert_rows(25,4)
-        ws.insert_rows(30,4)
+            ws.cell(row=9 + (i*5), column=2).value = self.date_list[i]
+            ws.cell(row=9 + (i*5), column=3).value = self.days_of_week[i]
 
 
+        # 셀 병합하기
+        for i in range(7):
+            # i:0 -> 9
+            ws.merge_cells(f'B{9+i*5}:B{13+i*5}')  # 날짜
+            ws.merge_cells(f'C{9+i*5}:C{13+i*5}')  # 요일
+            ws.merge_cells(f'F{9+i*5}:F{13+i*5}')  # 비고
 
     def set_date(self, days=6):
         # start_date +6일 해 줘야함 -> end_date 구하기
