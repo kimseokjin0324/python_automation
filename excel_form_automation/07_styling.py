@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 from openpyxl import Workbook
-
+from openpyxl.styles import Alignment
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font
 
 # 엑셀파일 생성하는 코드
 class WeeklyWorkPlan:
@@ -13,7 +15,7 @@ class WeeklyWorkPlan:
     date_list = []
     days_of_week = []
 
-    def __init__(self, start_date, manager,days=5, sheet_no=0):
+    def __init__(self, start_date, manager, days=5, sheet_no=0):
         self.wb = Workbook()
         self.ws = self.wb.worksheets[sheet_no]
         self.start_date = start_date
@@ -23,6 +25,7 @@ class WeeklyWorkPlan:
         self.set_date(days=days)
         self.set_title()
         self.set_table()
+        self.set_style()
 
     def save(self, fileName):
         self.wb.save(fileName)
@@ -56,11 +59,39 @@ class WeeklyWorkPlan:
 
         # 날짜및 요일 뿌리기
         for i in range(len(self.date_list)):
-            ws.cell(row=9 + (i*5), column=2).value = self.date_list[i]
-            ws.cell(row=9 + (i*5), column=3).value = self.days_of_week[i]
+            ws.cell(row=9 + (i * 5), column=2).value = self.date_list[i]
+            ws.cell(row=9 + (i * 5), column=3).value = self.days_of_week[i]
             ws.merge_cells(f'B{9 + i * 5}:B{13 + i * 5}')  # 날짜
             ws.merge_cells(f'C{9 + i * 5}:C{13 + i * 5}')  # 요일
             ws.merge_cells(f'F{9 + i * 5}:F{13 + i * 5}')  # 비고
+
+    def set_style(self):
+        ws = self.ws
+
+        # 너비 설정하기 (column_dimensions)
+        # A열 너비
+        ws.column_dimensions['A'].width = 5
+
+        # B C D E F열 너비 열제목
+        for i in range(2, 7):
+            ws.column_dimensions[get_column_letter(i)].width = 15
+            ws[f'{get_column_letter(i)}8'].font = Font(name='맑은 고딕', bold=True)
+            ws[f'{get_column_letter(i)}8'].alignment = Alignment(horizontal='center', vertical='center')
+
+        # E열 너비
+        ws.column_dimensions['E'].width = 40
+
+        # 제목 글꼴,사이즈
+        ws['B5'].font = Font(name='맑은 고딕', size=28, bold=True)
+
+        # 가운데 정렬
+        ws['B5'].alignment = Alignment(horizontal='center', vertical='center')
+        ws['B6'].alignment = Alignment(horizontal='center', vertical='center')
+
+        # 날짜요일 가운데 정렬
+        for i in range(9,40,5):
+            ws[f'B{i}'].alignment = Alignment(horizontal='center', vertical='center')
+            ws[f'C{i}'].alignment = Alignment(horizontal='center', vertical='center')
 
 
     def set_date(self, days=6):
@@ -78,5 +109,5 @@ class WeeklyWorkPlan:
 
 
 if __name__ == '__main__':
-    wwp = WeeklyWorkPlan('2023-03-08', '김석진',days=4)
+    wwp = WeeklyWorkPlan('2023-03-08', '김석진', days=4)
     wwp.save('주간업무계획표.xlsx')
