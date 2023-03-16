@@ -21,8 +21,8 @@ class ClassificationExcel:
 
         self.brands = df_partners['브랜드'].to_list()
         self.partners = df_partners['업체명'].to_list()
-        print(self.brands)
-        print(self.partners)
+        print(self.brands[0],self.partners[0])
+        print(self.order_list['상품명'].head())
 
 
 if __name__ == '__main__':
