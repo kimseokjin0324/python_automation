@@ -1,10 +1,11 @@
+import os
+from datetime import datetime
+
 import pandas as pd
 from openpyxl.reader.excel import load_workbook
-from datetime import datetime
 from openpyxl.styles import Font, Alignment
 
 pd.set_option('display.max_columns', None)
-import openpyxl
 
 
 class ClassificationExcel:
@@ -46,8 +47,8 @@ class ClassificationExcel:
             else:
                 print('없는 brand name', brand_name, row['상품명'])
 
-    def set_count(self):
-        file_name = 'result/[패스트몰]그레이스코퍼레이션.xlsx'
+    def set_form(self,file_name):
+
         wb = load_workbook(file_name)
         ws = wb.active
         print('value:', ws['A1'].value)
@@ -69,10 +70,19 @@ class ClassificationExcel:
 
         wb.save(file_name)
 
+    def set_forms(self):
+        file_list = os.listdir(self.path)
+        print(file_list)
+
+        for file_name in file_list:
+            file_name = f'{self.path}/{file_name}'
+            self.set_form(file_name)
+
 
 if __name__ == '__main__':
     order_excel_filename = '주문목록20221112.xlsx'
     partner_info_excel_filename = '파트너목록.xlsx'
-    ce = ClassificationExcel(order_excel_filename, partner_info_excel_filename)
-    # ce.classify()
-    ce.set_count()
+    path = 'result'
+    ce = ClassificationExcel(order_excel_filename, partner_info_excel_filename,path)
+    ce.classify()
+    ce.set_forms()
