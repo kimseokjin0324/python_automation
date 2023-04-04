@@ -7,8 +7,8 @@ class EmailSender:
     email_addr = None
     password = None
     smtp_server_map = {
-        'gmail.com':'smtp.gmail.com',
-        'naver.com':'smtp.naver.com'
+        'gmail.com': 'smtp.gmail.com',
+        'naver.com': 'smtp.naver.com'
     }
     smtp_server = None
 
@@ -16,24 +16,23 @@ class EmailSender:
         print('생성자')
         self.email_addr = email_addr
         self.password = password
-        self.smtp_server = email_addr.split('@')
-        print(self.smtp_server)
+        self.smtp_server = self.smtp_server_map[email_addr.split('@')[1]]
 
-    def send_email(self, msg, from_addr, to_addr):
+    def send_email(self, msg, from_addr, to_addr,subject):
         """
         :param msg: 보낼 메세지
         :param from_addr: 보내는 곳 사람
         :param to_addr: 받는 사람
         :return: 없을 예정
         """
-        with smtplib.SMTP('smtp.naver.com', 587) as smtp:
+        with smtplib.SMTP(self.smtp_server, 587) as smtp:
             smtp.starttls()
             smtp.login(self.email_addr, self.password)
             # 네이버는 구글과다르게 다른 작업이 필요하다
             msg = MIMEText(msg)
             msg['From'] = from_addr
             msg['To'] = to_addr
-            msg['Subject'] = '메일 발송 테스트'
+            msg['Subject'] = subject
             # 로그인 한 이후 이메일 보내기
             smtp.sendmail(from_addr=from_addr, to_addrs=to_addr, msg=msg.as_string())
             smtp.quit()
@@ -43,4 +42,4 @@ class EmailSender:
 if __name__ == '__main__':
     # es = EmailSender('kimseokjin0324@gmail.com',os.getenv('MY_GMAIL_PASSWORD'))
     es = EmailSender('sksmstjrwls1@naver.com', os.getenv('MY_NAVER_PASSWORD'))
-    es.send_email(' 테스트 입니다 네이버에서 보냄.', from_addr='sksmstjrwls1@naver.com', to_addr='kimseokjin0324@gmail.com')
+    es.send_email(' 테스트 입니다 \n 네이버에서 보냄.', from_addr='sksmstjrwls1@naver.com', to_addr='kimseokjin0324@gmail.com', subject='이메일 전송 테스트 진행3')
