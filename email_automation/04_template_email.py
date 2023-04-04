@@ -1,6 +1,7 @@
 import os
 import smtplib  # 파이썬 내장라이브러리
 from email.mime.text import MIMEText
+from email.utils import formataddr
 
 from openpyxl.reader.excel import load_workbook
 
@@ -22,7 +23,7 @@ class EmailSender:
         self.manager_name =manager_name
         self.smtp_server = self.smtp_server_map[email_addr.split('@')[1]]
 
-    def send_email(self, msg, from_addr, to_addr, subject):
+    def send_email(self, msg, from_addr, to_addr,receiver_name, subject):
         """
         :param msg: 보낼 메세지
         :param from_addr: 보내는 곳 사람
@@ -34,8 +35,8 @@ class EmailSender:
             smtp.login(self.email_addr, self.password)
             # 네이버는 구글과다르게 다른 작업이 필요하다
             msg = MIMEText(msg)
-            msg['From'] = from_addr
-            msg['To'] = to_addr
+            msg['From'] = formataddr((self.manager_name,from_addr)) #메일에 보내는 이메일에 보내는사람 추가하기
+            msg['To'] = formataddr((receiver_name,to_addr))
             msg['Subject'] = subject
             # 로그인 한 이후 이메일 보내기
             smtp.sendmail(from_addr=from_addr, to_addrs=to_addr, msg=msg.as_string())
@@ -61,8 +62,11 @@ class EmailSender:
                 print(row[0].value,row[1].value,row[2].value)
                 temp1 =  temp1.replace('%받는분%',row[2].value)
                 temp1 =  temp1.replace('%매니저_이름%',self.manager_name)
-                self.send_email(msg = temp1, from_addr=self.email_addr, to_addr=row[0].value,
-                      subject=row[1].value)
+                self.send_email(msg = temp1,
+                                from_addr=self.email_addr,
+                                to_addr=row[0].value,
+                                receiver_name=row[2].value,
+                                subject=row[1].value)
 
 
 if __name__ == '__main__':
