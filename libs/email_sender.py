@@ -1,5 +1,6 @@
 import os
 import smtplib  # 파이썬 내장라이브러리
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
@@ -25,21 +26,17 @@ class EmailSender:
         self.smtp_server = self.smtp_server_map[email_addr.split('@')[1]]
         self.template_filename = template_filename
 
-    def send_email(self, msg, from_addr, to_addr, receiver_name, subject):
-        """
-        :param msg: 보낼 메세지
-        :param from_addr: 보내는 곳 사람
-        :param to_addr: 받는 사람
-        :return: 없을 예정
-        """
+    def send_email(self, html_msg, from_addr, to_addr, receiver_name, subject):
+
         with smtplib.SMTP(self.smtp_server, 587) as smtp:
             smtp.starttls()
             smtp.login(self.email_addr, self.password)
             # 네이버는 구글과다르게 다른 작업이 필요하다
-            msg = MIMEText(msg)
+            msg = MIMEMultipart('alternative')
             msg['From'] = formataddr((self.manager_name, from_addr))  # 메일에 보내는 이메일에 보내는사람 추가하기
             msg['To'] = formataddr((receiver_name, to_addr))
             msg['Subject'] = subject
+            msg.attach(MIMEText(html_msg,'html','utf-8'))
             # 로그인 한 이후 이메일 보내기
             smtp.sendmail(from_addr=from_addr, to_addrs=to_addr, msg=msg.as_string())
             smtp.quit()
@@ -52,21 +49,19 @@ class EmailSender:
 
         for row in ws.iter_rows(min_row=2):
             # 교체하는부분은 %교체할부분%으로 세팅해서 중복이 되지않게 템플릿화
-            temp1 = ""
-            with open(self.template_filename,encoding= 'utf-8')  as f:
-                temp1 = f.read()
-
-            print('temp 1 :'  ,temp1)
-
             if row[0].value != None:
-                print(row[0].value, row[1].value, row[2].value)
-                temp1 = temp1.replace('%받는분%', row[2].value)
-                temp1 = temp1.replace('%매니저_이름%', self.manager_name)
-                self.send_email(msg=temp1,
-                                from_addr=self.email_addr,
-                                to_addr=row[0].value,
-                                receiver_name=row[2].value,
-                                subject=row[1].value)
+                with open(self.template_filename,encoding= 'utf-8')  as f:
+                    temp1 = f.read()
+                    print(row[0].value, row[1].value, row[2].value)
+                    temp1 = temp1.replace('%받는분%', row[2].value)
+                    temp1 = temp1.replace('%매니저_이름%', self.manager_name)
+                    self.send_email(html_msg=temp1,
+                                    from_addr=self.email_addr,
+                                    to_addr=row[0].value,
+                                    receiver_name=row[2].value,
+                                    subject=row[1].value)
+            else:
+                print('row[0] 이 NONE입니다.')
 
 
 if __name__ == '__main__':
