@@ -3,6 +3,7 @@ import smtplib  # 파이썬 내장라이브러리
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
+from datetime import datetime
 
 from openpyxl.reader.excel import load_workbook
 
@@ -35,7 +36,7 @@ class EmailSender:
             msg = MIMEMultipart('alternative')
             msg['From'] = formataddr((self.manager_name, from_addr))  # 메일에 보내는 이메일에 보내는사람 추가하기
             msg['To'] = formataddr((receiver_name, to_addr))
-            msg['Subject'] = subject
+            msg['Subject'] = subject +str(datetime.now())
             msg.attach(MIMEText(html_msg,'html','utf-8'))
             # 로그인 한 이후 이메일 보내기
             smtp.sendmail(from_addr=from_addr, to_addrs=to_addr, msg=msg.as_string())
