@@ -36,4 +36,4 @@ def make_email_list(data_path, partners_filename, title,target_filename='이메�
     print(f'엑셀로 저장 완료 되었습니다. 파일명:{target_filename}')
 
 if __name__ == '__main__':
-    make_email_list('data/', '파트너목록.xlsx', '[패스트몰] 금일 발주 목록 입니다. 확인부탁드립니다.','email_list.xlsx')
+    make_email_list('data/', '파트너목록.xlsx', '[패스트몰] 금일(04/15)발주 목록 입니다. 확인부탁드립니다.','email_list.xlsx')

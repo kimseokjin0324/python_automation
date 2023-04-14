@@ -19,10 +19,10 @@ class EmailSender:
         'naver.com': 'smtp.naver.com'
     }
     smtp_server = None
-    template_filename =None
+    template_filename = None
     path = None
 
-    def __init__(self, email_addr, password, manager_name,template_filename,path='data/'):
+    def __init__(self, email_addr, password, manager_name, template_filename, path='data/'):
         print('생성자')
         self.email_addr = email_addr
         self.password = password
@@ -31,11 +31,10 @@ class EmailSender:
         self.manager_name = manager_name
         self.smtp_server = self.smtp_server_map[email_addr.split('@')[1]]
         self.template_filename = template_filename
-        self.path =path
+        self.path = path
 
-
-    #첨부파일 메일에 추가해서 보내기
-    def send_email(self, html_msg, from_addr, to_addr, receiver_name, subject,attachment,cc_addr=''):
+    # 첨부파일 메일에 추가해서 보내기
+    def send_email(self, html_msg, from_addr, to_addr, receiver_name, subject, attachment, cc_addr=''):
 
         with smtplib.SMTP(self.smtp_server, 587) as smtp:
             smtp.starttls()
@@ -44,20 +43,25 @@ class EmailSender:
             msg = MIMEMultipart('alternative')
             msg['From'] = formataddr((self.manager_name, from_addr))  # 메일에 보내는 이메일에 보내는사람 추가하기
             msg['To'] = formataddr((receiver_name, to_addr))
-            msg['Subject'] = subject +str(datetime.now())
-            msg.attach(MIMEText(html_msg,'html','utf-8'))
+            msg['Subject'] = subject + str(datetime.now())
+            msg.attach(MIMEText(html_msg, 'html', 'utf-8'))
             # 만약 첨부파일이 없는 메일 일경우 분기로 나누기
             # 첨부파일은 /data안에 있음
             if attachment:
-                with open(f'{self.path}{attachment}','rb') as f :
-                    part = MIMEBase('application','octet-steam')
+                with open(f'{self.path}{attachment}', 'rb') as f:
+                    part = MIMEBase('application', 'octet-steam')
                     part.set_payload(f.read())
-                    part.add_header('content-disposition','attachment',filename = '%s' % attachment)
+                    part.add_header('content-disposition', 'attachment', filename='%s' % attachment)
                     encode_base64(part)
                     msg.attach(part)
 
             # 로그인 한 이후 이메일 보내기
-            smtp.sendmail(from_addr=from_addr, to_addrs=to_addr, msg=msg.as_string())
+            if cc_addr is not None and cc_addr != '':
+                msg['Cc'] = cc_addr
+                smtp.sendmail(from_addr=from_addr, to_addrs=[to_addr, cc_addr], msg=msg.as_string())
+            else:
+                smtp.sendmail(from_addr=from_addr, to_addrs=to_addr, msg=msg.as_string())
+
             smtp.quit()
         print(f'to_addr:{to_addr}로 이메일 전송이 완료되었습니다.')
 
@@ -69,7 +73,7 @@ class EmailSender:
         for row in ws.iter_rows(min_row=2):
             # 교체하는부분은 %교체할부분%으로 세팅해서 중복이 되지않게 템플릿화
             if row[0].value != None:
-                with open(self.template_filename,encoding= 'utf-8')  as f:
+                with open(self.template_filename, encoding='utf-8') as f:
                     temp1 = f.read()
                     print(row[0].value, row[1].value, row[2].value)
                     temp1 = temp1.replace('%받는분%', row[3].value)
@@ -79,7 +83,8 @@ class EmailSender:
                                     to_addr=row[0].value,
                                     receiver_name=row[3].value,
                                     subject=row[2].value,
-                                    attachment= row[4].value)
+                                    attachment=row[4].value,
+                                    cc_addr=row[1].value)
             else:
                 print('row[0] 이 NONE입니다.')
 
