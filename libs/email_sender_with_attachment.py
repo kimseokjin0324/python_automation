@@ -35,7 +35,7 @@ class EmailSender:
 
 
     #첨부파일 메일에 추가해서 보내기
-    def send_email(self, html_msg, from_addr, to_addr, receiver_name, subject,attachment):
+    def send_email(self, html_msg, from_addr, to_addr, receiver_name, subject,attachment,cc_addr=''):
 
         with smtplib.SMTP(self.smtp_server, 587) as smtp:
             smtp.starttls()
@@ -72,13 +72,13 @@ class EmailSender:
                 with open(self.template_filename,encoding= 'utf-8')  as f:
                     temp1 = f.read()
                     print(row[0].value, row[1].value, row[2].value)
-                    temp1 = temp1.replace('%받는분%', row[2].value)
+                    temp1 = temp1.replace('%받는분%', row[3].value)
                     temp1 = temp1.replace('%매니저_이름%', self.manager_name)
                     self.send_email(html_msg=temp1,
                                     from_addr=self.email_addr,
                                     to_addr=row[0].value,
-                                    receiver_name=row[2].value,
-                                    subject=row[1].value,
+                                    receiver_name=row[3].value,
+                                    subject=row[2].value,
                                     attachment= row[4].value)
             else:
                 print('row[0] 이 NONE입니다.')

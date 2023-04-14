@@ -24,15 +24,15 @@ def make_email_list(data_path, partners_filename, title,target_filename='이메�
         # print(email1, partner_manager_name, email_cc)  # 이메일1  컨텍담당자 참조이메일
         info = {'담당자메일': email1,
                 '참조': email_cc,
-                '컨텍담당자': partner_manager_name,
                 '제목': title,
+                '컨텍담당자': partner_manager_name,
                 '첨부파일명': filename
                 }
         r.append(info)
 
 
     email_list = pd.DataFrame(r)
-    email_list.to_excel(target_filename)
+    email_list.to_excel(target_filename,index = False)
     print(f'엑셀로 저장 완료 되었습니다. 파일명:{target_filename}')
 
 if __name__ == '__main__':
